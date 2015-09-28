@@ -115,6 +115,7 @@ public class HashtagView extends LinearLayout {
     private int rowGravity;
     private int rowDistribution;
     private int rowMode;
+    private int tagRowsCount;
     private int backgroundDrawable;
     private int foregroundDrawable;
     private int leftDrawable;
@@ -178,11 +179,32 @@ public class HashtagView extends LinearLayout {
         widthList = new ArrayList<>(list.size());
         data = new ArrayList<>(list.size());
         for (T item : list) {
-            if (transformer == null) {
-                data.add(new ItemData<>(item.toString()));
-            } else {
-                data.add(new ItemData<>(item, transformer.prepare(item)));
+            data.add(transformer == null ? new ItemData<>(item.toString()) : new ItemData<>(item, transformer.prepare(item)));
+        }
+    }
+
+    /**
+     * Method defines data as an array of custom data model. Using this method allow you
+     * to use {@link android.text.Spannable} for representing items label and define which items
+     * should be preselected items.
+     *
+     * @param list        Array of user defined objects representing data collection.
+     * @param transformer Implementation of {@link com.greenfrvr.hashtagview.HashtagView.DataTransform}
+     *                    interface. Can be used for building label from several custom data model
+     *                    fields or to prepare {@link android.text.Spannable} label representation.
+     * @param selector    Implementation of {@link com.greenfrvr.hashtagview.HashtagView.DataSelector}
+     *                    interface. Can be used to preselect some items.
+     * @param <T>         Custom data model
+     */
+    public <T> void setData(@NonNull List<T> list, @Nullable DataTransform<T> transformer, @Nullable DataSelector<T> selector) {
+        widthList = new ArrayList<>(list.size());
+        data = new ArrayList<>(list.size());
+        for (T item : list) {
+            ItemData itemData = transformer == null ? new ItemData<>(item.toString()) : new ItemData<>(item, transformer.prepare(item));
+            if (selector != null) {
+                itemData.isSelected = selector.preselect(item);
             }
+            data.add(itemData);
         }
     }
 
@@ -353,6 +375,7 @@ public class HashtagView extends LinearLayout {
             rowGravity = a.getInt(R.styleable.HashtagView_rowGravity, Gravity.CENTER);
             rowDistribution = a.getInt(R.styleable.HashtagView_rowDistribution, DISTRIBUTION_RANDOM);
             rowMode = a.getInt(R.styleable.HashtagView_rowMode, MODE_WRAP);
+            tagRowsCount = a.getInt(R.styleable.HashtagView_tagRowsCount, 0);
 
             backgroundDrawable = a.getResourceId(R.styleable.HashtagView_tagBackground, 0);
             foregroundDrawable = a.getResourceId(R.styleable.HashtagView_tagForeground, 0);
@@ -398,6 +421,8 @@ public class HashtagView extends LinearLayout {
             width = Math.min(width, getViewWidth() - 2 * totalOffset());
             item.view = view;
             item.width = width;
+            if (isInSelectMode)
+                item.displaySelection(leftDrawable, leftSelectedDrawable, rightDrawable, rightSelectedDrawable);
 
             widthList.add(width);
             totalItemsWidth += width;
@@ -410,7 +435,7 @@ public class HashtagView extends LinearLayout {
     private void sort() {
         if (data == null || data.isEmpty()) return;
 
-        int rowsQuantity = evaluateRowsQuantity();
+        int rowsQuantity = tagRowsCount == 0 ? evaluateRowsQuantity() : tagRowsCount;
         final int[] rowsWidth = new int[rowsQuantity];
 
         viewMap = ArrayListMultimap.create(rowsQuantity, data.size());
@@ -419,7 +444,7 @@ public class HashtagView extends LinearLayout {
             rowIteration:
             for (int i = 0; i < rowsQuantity; i++) {
                 for (ItemData item : data) {
-                    if (rowsWidth[i] + item.width <= getViewWidth()) {
+                    if (tagRowsCount > 0 || rowsWidth[i] + item.width <= getViewWidth()) {
                         rowsWidth[i] += item.width;
                         viewMap.put(i, item);
                         data.remove(item);
@@ -594,5 +619,13 @@ public class HashtagView extends LinearLayout {
      */
     public interface DataTransform<T> {
         CharSequence prepare(T item);
+    }
+
+    /**
+     * Allows to define whether item should be preselected or not. Returning true (or false) for exact
+     * item will cause initial state of this item to be set to selected (or unselected).
+     */
+    public interface DataSelector<T> {
+        boolean preselect(T item);
     }
 }
