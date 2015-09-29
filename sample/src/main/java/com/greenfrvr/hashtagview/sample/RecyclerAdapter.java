@@ -10,6 +10,9 @@ import com.greenfrvr.hashtagview.HashtagView;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 
 /**
  * Created by pincopallino93
@@ -22,13 +25,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public HashtagView hashtagView;
-        public TextView positionTextView;
+        @Bind(R.id.hashtags7) HashtagView hashtagView;
+        @Bind(R.id.positionTextView) TextView positionTextView;
 
         public ViewHolder(View v) {
             super(v);
-            hashtagView = (HashtagView) v.findViewById(R.id.hashtags7);
-            positionTextView = (TextView) v.findViewById(R.id.positionTextView);
+            ButterKnife.bind(this, v);
         }
     }
 

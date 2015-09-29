@@ -24,8 +24,8 @@ public class SamplesAdapter extends FragmentStatePagerAdapter {
     private static final SparseArray<String> fragments = new SparseArray<>(COUNT);
 
     static {
-        fragments.append(0, RecyclerViewFragment.class.getName());
-        fragments.append(1, BaseSampleFragment.class.getName());
+        fragments.append(0, BaseSampleFragment.class.getName());
+        fragments.append(1, RecyclerViewFragment.class.getName());
         fragments.append(2, GravitySampleFragment.class.getName());
         fragments.append(3, DistributionSampleFragment.class.getName());
         fragments.append(4, SpacingSampleFragment.class.getName());
