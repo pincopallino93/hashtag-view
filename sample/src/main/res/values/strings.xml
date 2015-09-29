@@ -4,6 +4,7 @@
 
     <string name="title_intro">Simple way to represent your collections data</string>
     <string name="title_events">Handle specific events</string>
+    <string name="title_recyclerview">Into a Recycler View</string>
     <string name="title_gravity">Play with the gravity as you want</string>
     <string name="title_distribution">Adjust items weight distribution</string>
     <string name="title_spacing">Control spacing</string>
