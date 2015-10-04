@@ -168,6 +168,7 @@ public class HashtagView extends LinearLayout {
         for (T item : list) {
             data.add(new ItemData<>(item));
         }
+        data.add(new ItemData(""));
         getViewTreeObserver().addOnPreDrawListener(preDrawListener);
     }
 
@@ -411,6 +412,9 @@ public class HashtagView extends LinearLayout {
 
             TextView itemView = (TextView) view.findViewById(R.id.text);
             itemView.setText(transformer.prepare(item.data));
+            if (item.data == "") {
+                view.setVisibility(GONE);
+            }
             decorateItemTextView(itemView);
 
             float width = itemView.getMeasuredWidth() + drawableMetrics(itemView) + totalOffset();
@@ -469,6 +473,10 @@ public class HashtagView extends LinearLayout {
             applyDistribution(viewMap.get(key));
 
             for (ItemData item : viewMap.get(key)) {
+                // Force to remove view
+                if (item.view.getParent() != null) {
+                    ((ViewGroup) item.view.getParent()).removeView(item.view);
+                }
                 rowLayout.addView(item.view, itemLayoutParams);
             }
         }
